@@ -93,6 +93,7 @@ public abstract class BiometricDialogView extends LinearLayout {
     private final WindowManager mWindowManager;
     private final UserManager mUserManager;
     private final DevicePolicyManager mDevicePolicyManager;
+    private final PackageManager mPackageManager;
     private final float mAnimationTranslationOffset;
     private final int mErrorColor;
     private final float mDialogWidth;
@@ -109,7 +110,6 @@ public abstract class BiometricDialogView extends LinearLayout {
     protected final Button mPositiveButton;
     protected final Button mNegativeButton;
     protected final Button mTryAgainButton;
-
     protected final int mTextColor;
 
     private Bundle mBundle;
@@ -126,6 +126,8 @@ public abstract class BiometricDialogView extends LinearLayout {
 
     private boolean mCompletedAnimatingIn;
     private boolean mPendingDismissDialog;
+    private boolean mIsFingerprint;
+    private boolean mIsFace;
 
     protected abstract int getHintStringResourceId();
     protected abstract int getAuthenticatedAccessibilityResourceId();
@@ -180,7 +182,7 @@ public abstract class BiometricDialogView extends LinearLayout {
         mErrorColor = getResources().getColor(R.color.biometric_dialog_error);
         mTextColor = getResources().getColor(R.color.biometric_dialog_gray);
         mHasFod = FodUtils.hasFodSupport(context);
-
+	mPackageManager = mContext.getPackageManager();
         DisplayMetrics metrics = new DisplayMetrics();
         mWindowManager.getDefaultDisplay().getMetrics(metrics);
         mDialogWidth = Math.min(metrics.widthPixels, metrics.heightPixels);
@@ -292,7 +294,7 @@ public abstract class BiometricDialogView extends LinearLayout {
             final int fodMargin = getResources().getDimensionPixelSize(
                     R.dimen.biometric_dialog_fod_margin);
 
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mBiometricIcon.getLayoutParams();
+            lp = (LinearLayout.LayoutParams)   mBiometricIcon.getLayoutParams();
             lp.topMargin = isGesturalNav ? fodMargin : (fodMargin > navbarHeight)
                     ? (fodMargin - navbarHeight) : 0;
 
@@ -302,9 +304,8 @@ public abstract class BiometricDialogView extends LinearLayout {
             lp = (LinearLayout.LayoutParams) mDescriptionText.getLayoutParams();
             lp.bottomMargin = mErrorText.getPaddingTop();
             mErrorText.setPadding(0, 0, 0, 0);
-        }
     }
-
+}
     public void onSaveState(Bundle bundle) {
         bundle.putInt(KEY_TRY_AGAIN_VISIBILITY, mTryAgainButton.getVisibility());
         bundle.putInt(KEY_CONFIRM_VISIBILITY, mPositiveButton.getVisibility());
